@@ -1,0 +1,12 @@
+Source: ros-indigo-surface-perception
+Section: misc
+Priority: extra
+Maintainer: Justin Huang <jstn@cs.washington.edu>
+Build-Depends: debhelper (>= 9.0.0), ros-indigo-catkin, ros-indigo-cmake-modules, ros-indigo-geometry-msgs, ros-indigo-pcl-conversions, ros-indigo-roscpp, ros-indigo-rospy, ros-indigo-sensor-msgs
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-indigo-surface-perception
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-indigo-geometry-msgs, ros-indigo-pcl-conversions, ros-indigo-roscpp, ros-indigo-rospy, ros-indigo-sensor-msgs
+Description: Simple library for segmentation of tabletop and shelf surfaces
