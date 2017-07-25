@@ -2,6 +2,11 @@
 Changelog for package surface_perception
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.3 (2017-07-24)
+------------------
+* Added mainpage documentation.
+* Contributors: Justin Huang
+
 0.1.2 (2017-07-19)
 ------------------
 * Fixed header files not being installed.
