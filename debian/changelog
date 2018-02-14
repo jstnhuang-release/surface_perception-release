@@ -1,0 +1,50 @@
+ros-indigo-surface-perception (1.0.0-0trusty) trusty; urgency=high
+
+  * Multi-shelf detection
+  * Contributors: Justin Huang, Yu-Tang Peng
+
+ -- Justin Huang <jstn@cs.washington.edu>  Tue, 13 Feb 2018 08:00:00 -0000
+
+ros-indigo-surface-perception (0.2.1-0trusty) trusty; urgency=high
+
+  * Make new x-axis the one closer to the data's x-axis.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Mon, 28 Aug 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.2.0-0trusty) trusty; urgency=high
+
+  * Changed oriented bounding box fitting algorithm so that the x direction always points towards the shorter side.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Mon, 28 Aug 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.3-0trusty) trusty; urgency=high
+
+  * Added mainpage documentation.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Mon, 24 Jul 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.2-0trusty) trusty; urgency=high
+
+  * Fixed header files not being installed.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 19 Jul 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.1-0trusty) trusty; urgency=high
+
+  * Added missing dependency.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 07 Jun 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.0-0trusty) trusty; urgency=high
+
+  * Initial implementation of surface_perception.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 07 Jun 2017 07:00:00 -0000
+
+
