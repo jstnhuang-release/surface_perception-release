@@ -115,17 +115,19 @@ bool FindSurfaces(PointCloudC::Ptr cloud, pcl::PointIndices::Ptr indices,
     surface.coefficients.reset(new pcl::ModelCoefficients);
     surface.coefficients->values = coeffs_vec[i].values;
     surface.pose_stamped.header.frame_id = cloud->header.frame_id;
-    FitBox(cloud, indices_vec[i], surface.coefficients,
-           &surface.pose_stamped.pose, &surface.dimensions);
-
-    // Adjust the center of surface
-    double offset =
-        surface.coefficients->values[0] * surface.pose_stamped.pose.position.x +
-        surface.coefficients->values[1] * surface.pose_stamped.pose.position.y +
-        surface.coefficients->values[2] * surface.pose_stamped.pose.position.z +
-        surface.coefficients->values[3];
-    surface.pose_stamped.pose.position.z -= offset;
-    surfaces->push_back(surface);
+    if (FitBox(cloud, indices_vec[i], surface.coefficients,
+               &surface.pose_stamped.pose, &surface.dimensions)) {
+      // Adjust the center of surface
+      double offset = surface.coefficients->values[0] *
+                          surface.pose_stamped.pose.position.x +
+                      surface.coefficients->values[1] *
+                          surface.pose_stamped.pose.position.y +
+                      surface.coefficients->values[2] *
+                          surface.pose_stamped.pose.position.z +
+                      surface.coefficients->values[3];
+      surface.pose_stamped.pose.position.z -= offset;
+      surfaces->push_back(surface);
+    }
   }
 
   return true;
@@ -197,19 +199,15 @@ bool FindObjectsOnSurfaces(PointCloudC::Ptr cloud, pcl::PointIndicesPtr indices,
         cloud, indices, *surfaces[i].coefficients, margin_above_surface,
         height_limit, above_surface_indices);
     if (!success) {
-      ROS_ERROR(
-          "Error: extraction of indices above a horizontal surface failed");
-      for (size_t j = 0; j < surfaces.size(); j++) {
-        ROS_ERROR("Surface %ld at (%f, %f, %f) with dimesions (%f, %f, %f)", j,
-                  surfaces[j].pose_stamped.pose.position.x,
-                  surfaces[j].pose_stamped.pose.position.y,
-                  surfaces[j].pose_stamped.pose.position.z,
-                  surfaces[j].dimensions.x, surfaces[j].dimensions.y,
-                  surfaces[j].dimensions.z);
-      }
-      return false;
+      ROS_WARN(
+          "Warning: extraction of indices above a horizontal surface failed");
+      ROS_WARN("Surface %ld at (%f, %f, %f) with dimesions (%f, %f, %f)", i,
+               surfaces[i].pose_stamped.pose.position.x,
+               surfaces[i].pose_stamped.pose.position.y,
+               surfaces[i].pose_stamped.pose.position.z,
+               surfaces[i].dimensions.x, surfaces[i].dimensions.y,
+               surfaces[i].dimensions.z);
     }
-
     above_surface_indices_vec.push_back(above_surface_indices);
   }
 
@@ -230,13 +228,16 @@ bool FindObjectsOnSurfaces(PointCloudC::Ptr cloud, pcl::PointIndicesPtr indices,
       object.cloud = cloud;
       object.indices.reset(new pcl::PointIndices(object_indices[j]));
       object.pose_stamped.header.frame_id = cloud->header.frame_id;
-      FitBox(cloud, object.indices, surfaces[i].coefficients,
-             &object.pose_stamped.pose, &object.dimensions);
-      surface_objects.objects.push_back(object);
+
+      if (FitBox(cloud, object.indices, surfaces[i].coefficients,
+                 &object.pose_stamped.pose, &object.dimensions)) {
+        surface_objects.objects.push_back(object);
+      }
     }
     surfaces_objects_vec->push_back(surface_objects);
   }
 
-  return true;
+  // Check if the function processes the correct number of surfaces
+  return surfaces_objects_vec->size() == surface_vec.size();
 }
 }  // namespace surface_perception
