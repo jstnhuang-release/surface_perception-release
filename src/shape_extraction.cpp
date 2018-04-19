@@ -13,6 +13,7 @@
 #include "ros/ros.h"
 
 #include "pcl/features/normal_3d.h"
+#include "surface_perception/surface.h"
 #include "surface_perception/typedefs.h"
 
 namespace {
@@ -109,9 +110,8 @@ bool FitBox(const PointCloudC::Ptr& input,
             const pcl::PointIndices::Ptr& indices,
             const pcl::ModelCoefficients::Ptr& model, geometry_msgs::Pose* pose,
             geometry_msgs::Vector3* dimensions) {
-  double min_volume = std::numeric_limits<double>::max();  // the minimum volume
-                                                           // shape found thus
-                                                           // far.
+  // The minimum volume shape found thus far.
+  double min_volume = std::numeric_limits<double>::max();
   Eigen::Matrix3f transformation;  // the transformation for the best-fit shape
 
   // Compute z height as maximum distance from planes
@@ -168,8 +168,12 @@ bool FitBox(const PointCloudC::Ptr& input,
     return false;
   }
 
+  // Record the best dimensions
+  double best_x_dim = 0.0;
+  double best_y_dim = 0.0;
+
   // Try fitting a rectangle
-  for (size_t i = 0; i < hull.size() - 1; ++i) {
+  for (size_t i = 0; i + 1 < hull.size(); ++i) {
     // For each pair of hull points, determine the angle
     double rise = hull[i + 1].y - hull[i].y;
     double run = hull[i + 1].x - hull[i].x;
@@ -203,9 +207,9 @@ bool FitBox(const PointCloudC::Ptr& input,
 
     // Compute min/max
     double x_min = std::numeric_limits<double>::max();
-    double x_max = std::numeric_limits<double>::min();
+    double x_max = -std::numeric_limits<double>::max();
     double y_min = std::numeric_limits<double>::max();
-    double y_max = std::numeric_limits<double>::min();
+    double y_max = -std::numeric_limits<double>::max();
     for (size_t j = 0; j < projected_cloud.size(); ++j) {
       if (projected_cloud[j].x < x_min) x_min = projected_cloud[j].x;
       if (projected_cloud[j].x > x_max) x_max = projected_cloud[j].x;
@@ -216,6 +220,7 @@ bool FitBox(const PointCloudC::Ptr& input,
 
     // Is this the best estimate?
     double area = (x_max - x_min) * (y_max - y_min);
+
     if (area * height < min_volume) {
       transformation = inv_plane_rotation * inv_rotation;
 
@@ -226,40 +231,97 @@ bool FitBox(const PointCloudC::Ptr& input,
       pose->position.y = pose3f(1);
       pose->position.z = pose3f(2);
 
-      // Flip orientation if necessary to force x dimension < y dimension
-      double x_dim = x_max - x_min;
-      double y_dim = y_max - y_min;
-      if (x_dim > y_dim) {
-        Eigen::Vector3f y_axis = transformation.col(1);
-        // There are two choices for the new x axis. This chooses the one that
-        // is closer to the positive x direction of the data.
-        if (y_axis.x() < 0) {
-          y_axis = -1 * transformation.col(1);
-        }
-        transformation.col(0) = y_axis;
-        transformation.col(1) =
-            transformation.col(2).cross(transformation.col(0));
-      }
-
-      if (x_dim > y_dim) {
-        dimensions->x = (y_max - y_min);
-        dimensions->y = (x_max - x_min);
-      } else {
-        dimensions->x = (x_max - x_min);
-        dimensions->y = (y_max - y_min);
-      }
-      dimensions->z = height;
-
-      Eigen::Quaternionf q(transformation);
-      pose->orientation.x = q.x();
-      pose->orientation.y = q.y();
-      pose->orientation.z = q.z();
-      pose->orientation.w = q.w();
+      best_x_dim = x_max - x_min;
+      best_y_dim = y_max - y_min;
 
       min_volume = area * height;
     }
   }
 
+  Eigen::Matrix3f adjusted_transformation =
+      StandardizeBoxOrientation(transformation, best_x_dim, best_y_dim,
+                                &(dimensions->x), &(dimensions->y));
+
+  dimensions->z = height;
+
+  Eigen::Quaternionf q(adjusted_transformation);
+  pose->orientation.x = q.x();
+  pose->orientation.y = q.y();
+  pose->orientation.z = q.z();
+  pose->orientation.w = q.w();
+
   return true;
+}
+
+bool FitBoxOnSurface(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& input,
+                     const pcl::PointIndicesPtr& indices,
+                     const Surface& surface, geometry_msgs::Pose* pose,
+                     geometry_msgs::Vector3* dimensions) {
+  bool success = FitBox(input, indices, surface.coefficients, pose, dimensions);
+  if (!success) {
+    return false;
+  }
+
+  // The box intersects with the surface. We adjust its dimensions and pose so
+  // that it is resting on the surface.
+  dimensions->z -= surface.dimensions.z / 2;
+
+  Eigen::Quaternionf q;
+  q.w() = pose->orientation.w;
+  q.x() = pose->orientation.x;
+  q.y() = pose->orientation.y;
+  q.z() = pose->orientation.z;
+  Eigen::Matrix3f mat(q);
+  Eigen::Vector3f up = mat.col(2) * surface.dimensions.z / 4;
+  pose->position.x += up.x();
+  pose->position.y += up.y();
+  pose->position.z += up.z();
+
+  return true;
+}
+
+Eigen::Matrix3f StandardizeBoxOrientation(
+    const Eigen::Matrix3f& rotation_matrix, double x_dim, double y_dim,
+    double* updated_x_dim, double* updated_y_dim) {
+  // The matrix to be outputed
+  Eigen::Matrix3f output_matrix;
+
+  // Flip orientation if necessary to force x dimension < y dimension
+  if (x_dim > y_dim) {
+    Eigen::Vector3f y_axis = rotation_matrix.col(1);
+    // There are two choices for the new x axis. This chooses the one that is
+    // closer to the positive x direction of the data.
+    if (y_axis.x() < 0) {
+      y_axis = -1 * rotation_matrix.col(1);
+    }
+    output_matrix.col(0) = y_axis;
+    output_matrix.col(1) = rotation_matrix.col(2).cross(y_axis);
+  } else {
+    output_matrix.col(0) = rotation_matrix.col(0);
+    output_matrix.col(1) = rotation_matrix.col(1);
+  }
+  output_matrix.col(2) = rotation_matrix.col(2);
+
+  // Update the dimensions
+  if (x_dim > y_dim) {
+    *updated_x_dim = y_dim;
+    *updated_y_dim = x_dim;
+  } else {
+    *updated_x_dim = x_dim;
+    *updated_y_dim = y_dim;
+  }
+
+  // Check if the object is facing towards or perpendicular to the positive
+  // x-axis. If not, the angle theta between x basis vector and x axis should be
+  // 90 < theta <= 180, which means the result of dot product of the two vectors
+  // would be negative.
+  Eigen::Vector3f x_axis(1.0, 0.0, 0.0);
+  if (output_matrix.col(0).dot(x_axis) < 0.0) {
+    output_matrix.col(0) = output_matrix.col(0) * -1.0;
+
+    output_matrix.col(1) = output_matrix.col(2).cross(output_matrix.col(0));
+  }
+
+  return output_matrix;
 }
 }  // namespace surface_perception
