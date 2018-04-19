@@ -1,3 +1,26 @@
+## surface_perception (indigo) - 1.0.2-0
+
+The packages in the `surface_perception` repository were released into the `indigo` distro by running `/usr/bin/bloom-release surface_perception --track indigo --rosdistro indigo` on `Thu, 19 Apr 2018 05:34:48 -0000`
+
+The `surface_perception` package was released.
+
+Version of package(s) in repository `surface_perception`:
+
+- upstream repository: https://github.com/jstnhuang/surface_perception.git
+- release repository: https://github.com/jstnhuang-release/surface_perception-release.git
+- rosdistro version: `1.0.1-0`
+- old version: `1.0.1-0`
+- new version: `1.0.2-0`
+
+Versions of tools used:
+
+- bloom version: `0.6.4`
+- catkin_pkg version: `0.4.1`
+- rosdep version: `0.12.2`
+- rosdistro version: `0.6.8`
+- vcstools version: `0.1.40`
+
+
 ## surface_perception (indigo) - 1.0.1-0
 
 The packages in the `surface_perception` repository were released into the `indigo` distro by running `/usr/bin/bloom-release surface_perception --track indigo --rosdistro indigo` on `Wed, 07 Mar 2018 01:17:55 -0000`
