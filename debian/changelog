@@ -1,0 +1,83 @@
+ros-indigo-surface-perception (1.0.3-0trusty) trusty; urgency=high
+
+  * Changed pose to be a const ref.
+  * Exported axes marker library.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Fri, 20 Apr 2018 07:00:00 -0000
+
+ros-indigo-surface-perception (1.0.2-0trusty) trusty; urgency=high
+
+  * Removed warning message for surfaces with no objects.
+  * Fixed objects intersecting with surface.
+  * Fixed bugs with shape extraction.
+  * Decouple the usage of margin_above_surface and max_point_distance
+  * Fixed bug with standardizing object orientation (#9 <https://github.com/jstnhuang/surface_perception/issues/9>)
+    * Pulled code to standardize object orientations into a separate function
+    * Fixed a bug with this function
+    * Added tests
+    * Added a visualization of the object orientations
+  * Updated Doxygen mainpage.
+  * Contributors: Justin Huang, Yu-Tang Peng
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 18 Apr 2018 07:00:00 -0000
+
+ros-indigo-surface-perception (1.0.1-0trusty) trusty; urgency=high
+
+  * Allowed surfaces with no object on them.
+  * Fixed occasional crashes due to convex hull computation.
+  * Added optional point cloud frame argument in demo to support target frame other than base_link.
+  * Contributors: Justin Huang, Yu-Tang Peng
+
+ -- Justin Huang <jstn@cs.washington.edu>  Tue, 06 Mar 2018 08:00:00 -0000
+
+ros-indigo-surface-perception (1.0.0-0trusty) trusty; urgency=high
+
+  * Multi-shelf detection
+  * Contributors: Justin Huang, Yu-Tang Peng
+
+ -- Justin Huang <jstn@cs.washington.edu>  Tue, 13 Feb 2018 08:00:00 -0000
+
+ros-indigo-surface-perception (0.2.1-0trusty) trusty; urgency=high
+
+  * Make new x-axis the one closer to the data's x-axis.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Mon, 28 Aug 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.2.0-0trusty) trusty; urgency=high
+
+  * Changed oriented bounding box fitting algorithm so that the x direction always points towards the shorter side.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Mon, 28 Aug 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.3-0trusty) trusty; urgency=high
+
+  * Added mainpage documentation.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Mon, 24 Jul 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.2-0trusty) trusty; urgency=high
+
+  * Fixed header files not being installed.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 19 Jul 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.1-0trusty) trusty; urgency=high
+
+  * Added missing dependency.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 07 Jun 2017 07:00:00 -0000
+
+ros-indigo-surface-perception (0.1.0-0trusty) trusty; urgency=high
+
+  * Initial implementation of surface_perception.
+  * Contributors: Justin Huang
+
+ -- Justin Huang <jstn@cs.washington.edu>  Wed, 07 Jun 2017 07:00:00 -0000
+
+
