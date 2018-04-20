@@ -2,6 +2,12 @@
 Changelog for package surface_perception
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.3 (2018-04-20)
+------------------
+* Changed pose to be a const ref.
+* Exported axes marker library.
+* Contributors: Justin Huang
+
 1.0.2 (2018-04-18)
 ------------------
 * Removed warning message for surfaces with no objects.
